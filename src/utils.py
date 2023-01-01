@@ -6,7 +6,21 @@ import numpy as np
 import torch
 
 from torch import nn
-from tqdm.auto import tqdm
+from tqdm import tqdm
+
+
+def generate_grid(n):
+    grid = [0]
+
+    for _ in range(n * n - 1):
+        if np.random.rand() < 0.2:
+            grid.append(1)
+        else:
+            grid.append(0)
+    grid[-1] = 0
+    grid = np.array(grid).reshape(n, n)
+    grid[-1][-1] = 0
+    return grid
 
 
 class NeuralNetwork(nn.Module):
@@ -81,26 +95,17 @@ class Qlearning:
             loss.backward()
             self.optimizer.step()
             if epoch % 100 == 99:
-                print(f"Epoch: {epoch}, games played: {games_played}, games won: {games_won}")
+                print("Epoch: ", epoch, "Games played: ", games_played, "Games won: ", games_won)
 
     def play(self):
-        time.sleep(3)
         self.game.reset()
+        all = []
         state = self.game.state
-        os.system("clear")
         while self.game.status != "WIN":
-            print(
-                state.reshape(
-                    int(np.sqrt(self.model.input_size)), int(np.sqrt(self.model.input_size))
-                )
-            )
+            all.append(self.game.html())
             pred = torch.argmax(self.model(torch.Tensor(state))).item()
             self.game.move(pred)
             time.sleep(0.5)
-            os.system("clear")
             state = self.game.state
-        print("fini")
-        print(
-            state.reshape(int(np.sqrt(self.model.input_size)), int(np.sqrt(self.model.input_size)))
-        )
-        time.sleep(2)
+        all.append(self.game.html())
+        return all

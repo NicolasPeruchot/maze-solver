@@ -3,8 +3,8 @@ import numpy as np
 
 class Game:
     def __init__(self, grid) -> None:
-        self.n = int(np.sqrt(len(grid)))
-        self.start = np.array(grid).reshape(self.n, self.n).astype(np.float32)
+        self.n = len(grid)
+        self.start = grid
         self.actions = {0: "UP", 1: "RIGHT", 2: "DOWN", 3: "LEFT"}
         self.rewards = {
             "INVALID": -0.2 * self.n,
@@ -39,6 +39,22 @@ class Game:
         elif self.position[1] == self.n - 1 and action == "RIGHT":
             return True
         return False
+
+    def html(self):
+        colors = {1: "content_wall", 0: "content_empty", 8: "content_pos"}
+        text = "<table>"
+        for line in range(self.n):
+            current = "<tr>"
+            for col in range(self.n):
+                current += f"""
+                <td>
+                    <div class="{colors[self.grid[line][col]]}"> </div>
+                </td>"""
+            current += "</tr>"
+
+            text += current
+        text += "<table>"
+        return text
 
     def move(self, action):
         self.n_moves += 1
