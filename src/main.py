@@ -1,30 +1,40 @@
-from utils import Qlearning, NeuralNetwork
-from games import Game
-import torch
 import numpy as np
 
-game = Game(
-    grid=[
-        0,
-        0,
-        0,
-        0,
-        0,
-        1,
-        0,
-        1,
-        0,
-        0,
-        0,
-        1,
-        1,
-        0,
-        0,
-        0,
-    ]
-)
+from games import Game
+from utils import NeuralNetwork, Qlearning
 
-model = NeuralNetwork(input_size=16, output_size=4)
+
+grid = [
+    0,
+    0,
+    1,
+    1,
+    1,
+    0,
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    1,
+    0,
+    1,
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+]
+
+game = Game(grid=grid)
+
+model = NeuralNetwork(input_size=len(grid), output_size=4)
 
 q = Qlearning(model=model, game=game)
 

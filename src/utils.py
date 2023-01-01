@@ -1,10 +1,12 @@
-import numpy as np
-from tqdm.auto import tqdm
-import torch
-import random
-from torch import nn
-import time
 import os
+import random
+import time
+
+import numpy as np
+import torch
+
+from torch import nn
+from tqdm.auto import tqdm
 
 
 class NeuralNetwork(nn.Module):
@@ -87,12 +89,18 @@ class Qlearning:
         state = self.game.state
         os.system("clear")
         while self.game.status != "WIN":
-            print(state.reshape(4, 4))
+            print(
+                state.reshape(
+                    int(np.sqrt(self.model.input_size)), int(np.sqrt(self.model.input_size))
+                )
+            )
             pred = torch.argmax(self.model(torch.Tensor(state))).item()
             self.game.move(pred)
             time.sleep(0.5)
             os.system("clear")
             state = self.game.state
         print("fini")
-        print(state.reshape(4, 4))
+        print(
+            state.reshape(int(np.sqrt(self.model.input_size)), int(np.sqrt(self.model.input_size)))
+        )
         time.sleep(2)
