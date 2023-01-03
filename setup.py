@@ -1,6 +1,8 @@
 """Manage dependencies."""
 import pathlib
+
 from typing import List
+
 from setuptools import find_packages, setup
 
 
@@ -12,7 +14,6 @@ def _read(fname: str) -> str:
 
 base_packages: List[str] = [
     "numpy",
-    "tqdm",
     "torch",
 ]
 
