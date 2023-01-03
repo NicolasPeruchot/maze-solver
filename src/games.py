@@ -41,7 +41,7 @@ class Game:
         return False
 
     def html(self):
-        colors = {1: "content_wall", 0: "content_empty", 8: "content_pos"}
+        colors = {1: "content_wall", 0: "content_empty", 8: "content_pos", 7: "content_exit"}
         text = "<table>"
         for line in range(self.n):
             current = "<tr>"
@@ -60,6 +60,10 @@ class Game:
         self.n_moves += 1
 
         action = self.actions[action]
+
+        if self.n_moves > self.max_moves:
+            self.status = "LOSE"
+            return (self.position, self.status, self.rewards[self.status])
 
         if self.outbound(action):
             self.status = "INVALID"
@@ -84,9 +88,6 @@ class Game:
                 self.position = next_position
                 if self.position == (self.n - 1, self.n - 1):
                     self.status = "WIN"
-
-                elif self.n_moves > self.max_moves:
-                    self.status = "LOSE"
 
                 elif self.position in self.visited:
                     self.status = "VISITED"

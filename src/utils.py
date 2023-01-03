@@ -43,13 +43,13 @@ def generate_grid(n):
     while is_solvable == False:
         grid = [0]
         for _ in range(n * n - 1):
-            if np.random.rand() < 0.5:
+            if np.random.rand() < 0.75:
                 grid.append(1)
             else:
                 grid.append(0)
         grid[-1] = 0
         grid = np.array(grid).reshape(n, n)
-        grid[-1][-1] = 0
+        grid[-1][-1] = 7
         is_solvable = solvable(grid, n)
     return grid
 
@@ -60,9 +60,9 @@ class NeuralNetwork(nn.Module):
         self.input_size = input_size
         self.output_size = output_size
         self.stack = nn.Sequential(
-            nn.Linear(in_features=self.input_size, out_features=self.input_size),
+            nn.Linear(in_features=self.input_size, out_features=self.input_size**2),
             nn.PReLU(),
-            nn.Linear(self.input_size, self.output_size),
+            nn.Linear(self.input_size**2, self.output_size),
         )
 
     def forward(self, x):
@@ -81,18 +81,14 @@ class Qlearning:
         self.game.reset()
         self.loss = nn.MSELoss()
         self.optimizer = torch.optim.Adam(self.model.parameters())
-        trained = 0
-        epoch = 1
-        while trained != 3:
+        training = True
+        while training:
             games_played = 0
-            games_won = 0
             inputs = []
             outputs = []
             while games_played < 10:
                 status = self.game.status
                 if status in ["WIN", "LOSE"]:
-                    if status == "WIN":
-                        games_won += 1
                     self.game.reset()
                     games_played += 1
                 game_state = self.game.state
@@ -127,10 +123,15 @@ class Qlearning:
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
-            if epoch % 100 == 99:
-                if games_played == games_won:
-                    trained += 1
-            epoch += 1
+            self.game.reset()
+            state = self.game.state
+            while self.game.status not in ["WIN", "LOSE"]:
+                pred = torch.argmax(self.model(torch.Tensor(state))).item()
+                self.game.move(pred)
+                state = self.game.state
+
+            if self.game.status == "WIN":
+                training = False
 
     def play(self):
         self.game.reset()

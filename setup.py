@@ -12,9 +12,10 @@ def _read(fname: str) -> str:
     return data
 
 
-base_packages: List[str] = [
+base_packages = [
     "numpy",
     "torch",
+    "streamlit",
 ]
 
 dev_packages = [
