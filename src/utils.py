@@ -38,12 +38,12 @@ def solvable(grid, n):
         return False
 
 
-def generate_grid(n):
+def generate_grid(n, wall_freq=0.5):
     is_solvable = False
     while is_solvable == False:
         grid = [0]
         for _ in range(n * n - 1):
-            if np.random.rand() < 0.75:
+            if np.random.rand() < wall_freq:
                 grid.append(1)
             else:
                 grid.append(0)
