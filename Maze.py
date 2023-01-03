@@ -35,8 +35,8 @@ if st.button("Solve"):
         with col2:
             with st.spinner("Training"):
                 q.train()
+                B = q.play()
 
-        B = q.play()
         for x in B:
             components.html(text + x, height=500)
             time.sleep(0.3)

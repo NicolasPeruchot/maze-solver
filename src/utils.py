@@ -71,11 +71,12 @@ class NeuralNetwork(nn.Module):
 
 
 class Qlearning:
-    def __init__(self, model: NeuralNetwork, game) -> None:
+    def __init__(self, model: NeuralNetwork, game, gamma=0.99, batch_size=64) -> None:
         self.exploration_proba = 0.1
-        self.gamma = 0.99
+        self.gamma = gamma
         self.model = model
         self.game = game
+        self.batch_size = batch_size
 
     def train(self):
         self.game.reset()
@@ -86,7 +87,7 @@ class Qlearning:
             games_played = 0
             inputs = []
             outputs = []
-            while games_played < 10:
+            while len(inputs) != self.batch_size:
                 status = self.game.status
                 if status in ["WIN", "LOSE"]:
                     self.game.reset()
