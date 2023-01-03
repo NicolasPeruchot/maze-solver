@@ -9,17 +9,50 @@ from torch import nn
 from tqdm import tqdm
 
 
-def generate_grid(n):
-    grid = [0]
+def to_visit(coord, n):
+    possible = []
+    if coord[0] + 1 < n:
+        possible.append((coord[0] + 1, coord[1]))
+    if coord[0] - 1 >= 0:
+        possible.append((coord[0] - 1, coord[1]))
+    if coord[1] + 1 < n:
+        possible.append((coord[0], coord[1] + 1))
+    if coord[1] - 1 >= 0:
+        possible.append((coord[0], coord[1] - 1))
+    return possible
 
-    for _ in range(n * n - 1):
-        if np.random.rand() < 0.2:
-            grid.append(1)
-        else:
-            grid.append(0)
-    grid[-1] = 0
-    grid = np.array(grid).reshape(n, n)
-    grid[-1][-1] = 0
+
+def solvable(grid, n):
+    visited = set((0, 0))
+    get_neigh = [(0, 0)]
+    over = False
+    while over == False:
+        current = get_neigh.pop()
+        possible = [x for x in to_visit(current, n) if grid[x] != 1 and x not in visited]
+        visited.update(possible)
+        get_neigh += possible
+        if len(get_neigh) == 0:
+            over = True
+
+    if (n - 1, n - 1) in visited:
+        return True
+    else:
+        return False
+
+
+def generate_grid(n):
+    is_solvable = False
+    while is_solvable == False:
+        grid = [0]
+        for _ in range(n * n - 1):
+            if np.random.rand() < 0.5:
+                grid.append(1)
+            else:
+                grid.append(0)
+        grid[-1] = 0
+        grid = np.array(grid).reshape(n, n)
+        grid[-1][-1] = 0
+        is_solvable = solvable(grid, n)
     return grid
 
 
@@ -50,7 +83,9 @@ class Qlearning:
         self.game.reset()
         self.loss = nn.MSELoss()
         self.optimizer = torch.optim.Adam(self.model.parameters())
-        for epoch in tqdm(range(1000)):
+        trained = 0
+        epoch = 1
+        while trained != 3:
             games_played = 0
             games_won = 0
             inputs = []
@@ -95,7 +130,9 @@ class Qlearning:
             loss.backward()
             self.optimizer.step()
             if epoch % 100 == 99:
-                print("Epoch: ", epoch, "Games played: ", games_played, "Games won: ", games_won)
+                if games_played == games_won:
+                    trained += 1
+            epoch += 1
 
     def play(self):
         self.game.reset()

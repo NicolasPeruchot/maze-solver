@@ -15,23 +15,23 @@ n = st.slider("Size of maze", min_value=3, max_value=6, value=3)
 with open("main.html", "r", encoding="utf-8") as f:
     text = f.read()
 
-grid = generate_grid(n)
-
-
-game = Game(grid=grid)
-
-
-A = components.html(text + game.html(), height=300)
-
 
 if st.button("Solve"):
+    grid = generate_grid(n)
+    game = Game(grid=grid)
     model = NeuralNetwork(input_size=n**2, output_size=4)
     q = Qlearning(model=model, game=game)
-    q.train()
-    B = q.play()
-    A.empty()
-    for x in B:
-        current = components.html(text + x, height=300)
-        time.sleep(0.5)
-        current.empty()
-    current = components.html(text + B[-1], height=300)
+
+    with st.empty():
+        col1, col2 = st.columns(2)
+        with col1:
+            components.html(text + game.html(), height=250)
+        with col2:
+            with st.spinner("Training"):
+                q.train()
+
+        B = q.play()
+        for x in B:
+            components.html(text + x, height=250)
+            time.sleep(0.5)
+        components.html(text + B[-1], height=250)
